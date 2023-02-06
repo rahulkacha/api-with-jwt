@@ -9,9 +9,8 @@ const userSchema = new mongoose.Schema({
   role: String,
   username: String,
   password: String,
-  secretKey: String,
   createdAt: String,
-  updatedAt: [{ type: String }],
+  updatedAt: [String],
 });
 
 const User = mongoose.model("User", userSchema);

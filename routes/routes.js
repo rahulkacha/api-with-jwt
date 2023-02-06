@@ -1,19 +1,35 @@
 const express = require("express");
-const moment = require("moment");
-//
-const mongoose = require("mongoose");
-dbUrl = "mongodb://127.0.0.1/apiDB";
-const User = require("../models/user");
+const controllers = require("../controllers/controllers");
+const middlewares = require("../middlewares/authMiddleware");
 const router = express.Router();
-mongoose.set("strictQuery", false);
-mongoose.connect(dbUrl);
+
+const jwt = require("jsonwebtoken");
+
+const users = [
+  {
+    username: "rahul",
+    data: "fdfdfdfd",
+  },
+  {
+    username: "cvcvgfg",
+  },
+];
 
 router
   .route("/")
 
-  .get((req, res) => {
-    res.status(200);
-    res.send({ response: "GET request to root route" });
+  .get(middlewares.authenticateToken, (req, res) => {
+    res.json(users.filter((x) => x.username === req.user.username));
   });
 
+router
+  .route("/login")
+
+  .post((req, res) => {
+    const user = {
+      username: req.body.username,
+    };
+    const accessToken = jwt.sign(user, process.env.PRIVATE_KEY);
+    res.json({ accessToken: accessToken });
+  });
 module.exports = router;
