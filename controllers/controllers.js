@@ -14,9 +14,10 @@ function loginUser(req, res) {
   const user = {
     username: req.body.username,
   };
-  const accessToken = jwt.sign(user, process.env.PRIVATE_KEY);
+  const accessToken = jwt.sign(user, process.env.PRIVATE_KEY, {
+    expiresIn: expiresIn,
+  });
   res.json({ accessToken: accessToken });
 }
 
-function generateAccessToken(req, res) {}
-module.exports = { loginUser, generateAccessToken };
+module.exports = { loginUser };
