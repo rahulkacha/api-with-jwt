@@ -30,6 +30,7 @@ router
   .post(controllers.loginUser);
 module.exports = router;
 
-router.route("/refresh").get((req, res) => {
-  res.json("dfdfdf");
-});
+router
+  .route("/register")
+
+  .post(controllers.registerUser);
