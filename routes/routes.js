@@ -7,11 +7,13 @@ const jwt = require("jsonwebtoken");
 
 const users = [
   {
-    username: "rahul",
-    data: "fdfdfdfd",
+    username: "rahulkacha",
   },
   {
-    username: "cvcvgfg",
+    username: "rahul",
+  },
+  {
+    username: "abcd",
   },
 ];
 
@@ -25,11 +27,9 @@ router
 router
   .route("/login")
 
-  .post((req, res) => {
-    const user = {
-      username: req.body.username,
-    };
-    const accessToken = jwt.sign(user, process.env.PRIVATE_KEY);
-    res.json({ accessToken: accessToken });
-  });
+  .post(controllers.loginUser);
 module.exports = router;
+
+router.route("/refresh").get((req, res) => {
+  res.json("dfdfdf");
+});
