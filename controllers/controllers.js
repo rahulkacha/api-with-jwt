@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const User = require("../models/user");
 
+const expiresIn = "15s"; //token expiration time
+
 dbUrl = "mongodb://127.0.0.1/apidb";
 
 mongoose.set("strictQuery", false);
@@ -16,4 +18,5 @@ function loginUser(req, res) {
   res.json({ accessToken: accessToken });
 }
 
-module.exports = { loginUser };
+function generateAccessToken(req, res) {}
+module.exports = { loginUser, generateAccessToken };

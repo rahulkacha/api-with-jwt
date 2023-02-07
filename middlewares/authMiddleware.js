@@ -6,17 +6,14 @@ function authenticateToken(req, res, next) {
     token = authHeader.split(" ")[1];
     jwt.verify(token, process.env.PRIVATE_KEY, (err, user) => {
       if (err) {
-        res.sendStatus(403);
-        console.log("err 1");
+        res.status(403).json({ error: "token is expired." });
       } else {
         req.user = user;
-        console.log(req.user);
         next();
       }
     });
   } else {
-    res.sendStatus(401);
-    console.log("err 2");
+    res.status(401).json({ error: "unauthorized." });
   }
 }
 
