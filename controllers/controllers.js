@@ -9,13 +9,59 @@ const expiresIn = "15s"; //token expiration time
 const emailRegex = /\S+@\S+\.\S+/;
 
 function loginUser(req, res) {
-  const user = {
-    username: req.body.username,
-  };
-  const accessToken = jwt.sign(user, process.env.PRIVATE_KEY, {
-    expiresIn: expiresIn,
-  });
-  res.json({ accessToken: accessToken });
+  // check if the body contains email or password or both
+  if (req.body.hasOwnProperty("email")) {
+    query = `SELECT userName, email, password, role FROM users WHERE email = '${req.body.email
+      .toLowerCase()
+      .trim()}';`;
+  } else if (req.body.hasOwnProperty("username")) {
+    query = `SELECT userName, email, password, role FROM users WHERE userName = '${req.body.username.trim()}';`;
+  } else {
+    // neither email or username is present in the obj; throws error
+    res.json({ error: "the body does not contain email or username" });
+  }
+  if (req.body.hasOwnProperty("password")) {
+    //contains password
+    // fetch the row with either matching username or password
+    const connection = sql.createConnection(dbConfig);
+
+    connection.query(query, (err, rows, fields) => {
+      if (err) {
+        throw err;
+      } else {
+        if (rows.length === 1) {
+          bcrypt.compare(
+            req.body.password.trim(),
+            rows[0].password,
+            (err, result) => {
+              if (result) {
+                // send the token
+                const user = {
+                  username: rows[0].userName,
+                  email: rows[0].email,
+                  role: rows[0].role,
+                };
+
+                //
+                const accessToken = jwt.sign(user, process.env.PRIVATE_KEY, {
+                  expiresIn: expiresIn,
+                });
+                res.json({ accessToken: accessToken });
+              } else {
+                res.json({ error: "password does not match" });
+              }
+            }
+          );
+        } else {
+          res.json({ error: "these credentials does not exist." });
+        }
+      }
+    });
+
+    connection.end();
+  } else {
+    res.json({ error: "the body does not contain password." });
+  }
 }
 
 function registerUser(req, res) {
@@ -59,8 +105,6 @@ function registerUser(req, res) {
                       email: email,
                       username: userName,
                       role: role,
-                      //for testing only
-                      hash: hash,
                     },
                   },
                 });

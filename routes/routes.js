@@ -3,25 +3,13 @@ const controllers = require("../controllers/controllers");
 const middlewares = require("../middlewares/authMiddleware");
 const router = express.Router();
 
-const jwt = require("jsonwebtoken");
-
-const users = [
-  {
-    username: "rahulkacha",
-  },
-  {
-    username: "rahul",
-  },
-  {
-    username: "abcd",
-  },
-];
-
 router
   .route("/")
 
   .get(middlewares.authenticateToken, (req, res) => {
-    res.json(users.filter((x) => x.username === req.user.username));
+    res.json({
+      response: "you are authenticated. this is some secret information.",
+    });
   });
 
 router
