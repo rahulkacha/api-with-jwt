@@ -74,15 +74,19 @@ function registerUser(req, res) {
 
 function loginUser(req, res) {
   // check if the body contains email or password or both
-  if (req.body.hasOwnProperty("email")) {
-    query = `SELECT userName, email, password, role FROM users WHERE email = '${req.body.email
-      .toLowerCase()
-      .trim()}';`;
-  } else if (req.body.hasOwnProperty("username")) {
-    query = `SELECT userName, email, password, role FROM users WHERE userName = '${req.body.username.trim()}';`;
+  if (req.body.hasOwnProperty("username")) {
+    // check if it's username or email
+    const userName = req.body.username.trim();
+    if (emailRegex.test(userName)) {
+      // it's email, not username
+      query = `SELECT userName, email, password, role FROM users WHERE email = '${userName.toLowerCase()}';`;
+    } else {
+      //it's username
+      query = `SELECT userName, email, password, role FROM users WHERE userName = '${userName}';`;
+    }
   } else {
-    // neither email or username is present in the obj; throws error
-    res.json({ error: "the body does not contain email or username" });
+    // username is present in the obj; throws error
+    res.json({ error: "the body does not contain username" });
   }
   if (req.body.hasOwnProperty("password")) {
     //contains password
