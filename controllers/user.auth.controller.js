@@ -1,11 +1,10 @@
 require("dotenv").config();
-const jwt = require("jsonwebtoken");
 const sql = require("mysql2");
 const bcrypt = require("bcrypt");
 const { dbConfig } = require("../configs/dbConfig");
+const utils = require("../utils/utils");
 
 const saltRounds = 10;
-const expiresIn = "15s"; //token expiration time
 const emailRegex = /\S+@\S+\.\S+/;
 
 function registerUser(req, res) {
@@ -91,28 +90,7 @@ function loginUser(req, res) {
           // no errors, proceed further
           if (rows.length === 1) {
             // email matches
-            bcrypt.compare(
-              req.body.password.trim(),
-              rows[0].password,
-              (err, result) => {
-                if (result) {
-                  // send the token
-                  const user = {
-                    username: rows[0].userName,
-                    email: rows[0].email,
-                    role: rows[0].role,
-                  };
-
-                  //
-                  const accessToken = jwt.sign(user, process.env.PRIVATE_KEY, {
-                    expiresIn: expiresIn,
-                  });
-                  res.json({ accessToken: accessToken });
-                } else {
-                  res.json({ error: "password does not match" });
-                }
-              }
-            );
+            utils.sendJWT(rows, req, res);
           } else {
             //email does not match; check with userName
             const connection = sql.createConnection(dbConfig);
@@ -123,33 +101,9 @@ function loginUser(req, res) {
                   res.json({ error: err });
                 } else {
                   if (rows.length === 1) {
+                    ///
                     //credentials exist with a matching username
-                    bcrypt.compare(
-                      req.body.password.trim(),
-                      rows[0].password,
-                      (err, result) => {
-                        if (result) {
-                          // send the token
-                          const user = {
-                            username: rows[0].userName,
-                            email: rows[0].email,
-                            role: rows[0].role,
-                          };
-
-                          //
-                          const accessToken = jwt.sign(
-                            user,
-                            process.env.PRIVATE_KEY,
-                            {
-                              expiresIn: expiresIn,
-                            }
-                          );
-                          res.json({ accessToken: accessToken });
-                        } else {
-                          res.json({ error: "password does not match" });
-                        }
-                      }
-                    );
+                    utils.sendJWT(rows, req, res);
                   } else {
                     // record does not exist.
                     res.json({
@@ -168,27 +122,6 @@ function loginUser(req, res) {
     // username or password is not present in the obj; throws error
     res.json({ error: "the body is missing username or password." });
   }
-}
-
-function sendJWT(rows) {
-  bcrypt.compare(req.body.password.trim(), rows[0].password, (err, result) => {
-    if (result) {
-      // send the token
-      const user = {
-        username: rows[0].userName,
-        email: rows[0].email,
-        role: rows[0].role,
-      };
-
-      //
-      const accessToken = jwt.sign(user, process.env.PRIVATE_KEY, {
-        expiresIn: expiresIn,
-      });
-      res.json({ accessToken: accessToken });
-    } else {
-      res.json({ error: "password does not match" });
-    }
-  });
 }
 
 module.exports = { loginUser, registerUser };
