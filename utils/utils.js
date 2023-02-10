@@ -1,39 +1,6 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const sql = require("mysql2");
 const bcrypt = require("bcrypt");
-const { dbConfig } = require("../configs/dbConfig");
-const utils = require("../utils/utils");
-
-const saltRounds = 10;
-const emailRegex = /\S+@\S+\.\S+/;
-
-function insertQuery(queryString) {
-  const connection = sql.createConnection(dbConfig);
-  connection.connect();
-  // insert the user credentials into the database
-
-  connection.query(queryString, (err, rows, fields) => {
-    if (err) {
-      return { status: false, error: err };
-    } else {
-      return {
-        status: true,
-        response: {
-          message: "registered successfully.",
-          credentials: {
-            name: userData.name,
-            email: userData.email,
-            username: userData.userName,
-            role: role,
-          },
-        },
-      };
-    }
-  });
-
-  connection.end();
-}
 
 function sendJWT(rows, reqObj, resObj) {
   bcrypt.compare(
@@ -60,4 +27,4 @@ function sendJWT(rows, reqObj, resObj) {
   );
 }
 
-module.exports = { insertQuery, sendJWT };
+module.exports = { sendJWT };
