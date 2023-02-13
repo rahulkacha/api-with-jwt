@@ -12,7 +12,7 @@ function registerUser(req, res) {
     // mandatory requirements are fulfilled
     const userData = {
       email: req.body.email.toLowerCase().trim(),
-      hash: bcrypt.hashSync(req.body.password.trim(), saltRounds),
+      password: bcrypt.hashSync(req.body.password.trim(), saltRounds),
       name: req.body.name ? req.body.name.trim() : null,
       userName: req.body.username ? req.body.username.trim() : null,
     };
@@ -48,20 +48,20 @@ function registerUser(req, res) {
                     // username is new, i.e. unique; proceed further
                     const connection = sql.createConnection(dbConfig);
                     connection.connect();
-                    const name = userData.name ? `'${userData.name}'` : null;
-                    const username = userData.userName
-                      ? `'${userData.userName}'`
-                      : null;
-                    const query = `INSERT INTO users (name, email, userName, password) VALUES (${name} , '${userData.email}'  , ${username} , '${userData.hash}') ;`;
-                    connection.query(query, (err, rows, fields) => {
-                      if (err) {
-                        res.json({ error: err });
-                      } else {
-                        res.json({
-                          message: "you are successfully registered.",
-                        });
+
+                    connection.query(
+                      "INSERT INTO users SET ? ;",
+                      userData,
+                      (err, rows, fields) => {
+                        if (err) {
+                          res.json({ error: err });
+                        } else {
+                          res.json({
+                            message: "you are successfully registered.",
+                          });
+                        }
                       }
-                    });
+                    );
                     connection.end();
                   } else {
                     //email or username s already
@@ -75,17 +75,20 @@ function registerUser(req, res) {
               // insert without username
               const connection = sql.createConnection(dbConfig);
               connection.connect();
-              const name = userData.name ? `'${userData.name}'` : null;
-              const query = `INSERT INTO users (name, email, password) VALUES (${name} , '${userData.email}' , '${userData.hash}') ;`;
-              connection.query(query, (err, rows, fields) => {
-                if (err) {
-                  res.json({ error: err });
-                } else {
-                  res.json({
-                    message: "you have been successfully registered.",
-                  });
+
+              connection.query(
+                "INSERT INTO users SET ? ;",
+                userData,
+                (err, rows, fields) => {
+                  if (err) {
+                    res.json({ error: err });
+                  } else {
+                    res.json({
+                      message: "you have been successfully registered.",
+                    });
+                  }
                 }
-              });
+              );
               connection.end();
             }
           } else {
