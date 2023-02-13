@@ -202,4 +202,26 @@ function testRegisterUser(req, res) {
   }
 }
 
-module.exports = { testRegisterUser, registerUser, loginUser };
+function testLoginUser(req, res) {
+  // check if the body contains email or password or both
+  userObj = {
+    userName: req.body.username ? req.body.username.trim() : null,
+    email: req.body.username ? req.body.username.trim().toLowerCase() : null,
+    password: req.body.password ? req.body.password.trim() : null,
+  };
+  // fetch the row with either matching username or password
+  const connection = sql.createConnection(dbConfig);
+  connection.query(
+    `SELECT * FROM users WHERE email = ? OR userName = ?;`,
+    [userObj.email, userObj.userName],
+    (err, rows, fields) => {
+      if (err) {
+        res.json({ error: err });
+      } else {
+        utils.testSendJWT(rows, userObj.password, res);
+      }
+    }
+  );
+  connection.end();
+}
+module.exports = { testRegisterUser, testLoginUser, registerUser, loginUser };

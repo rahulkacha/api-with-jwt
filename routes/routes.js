@@ -17,14 +17,21 @@ router
 
   .post(controllers.registerUser);
 
-  router
+router
+  .route("/login")
+
+  .post(controllers.loginUser);
+
+// TEST ROUTES
+
+router
   .route("/testRegister")
 
   .post(controllers.testRegisterUser);
 
 router
-  .route("/login")
+  .route("/testLogin")
 
-  .post(controllers.loginUser);
+  .post(controllers.testLoginUser);
 
 module.exports = router;
