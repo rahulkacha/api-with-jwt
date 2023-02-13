@@ -17,6 +17,11 @@ router
 
   .post(controllers.registerUser);
 
+  router
+  .route("/testRegister")
+
+  .post(controllers.testRegisterUser);
+
 router
   .route("/login")
 

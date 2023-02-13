@@ -164,4 +164,42 @@ function loginUser(req, res) {
   }
 }
 
-module.exports = { registerUser, loginUser };
+function testRegisterUser(req, res) {
+  const userData = {
+    email: req.body.email ? req.body.email.toLowerCase().trim() : null,
+    password: req.body.password
+      ? bcrypt.hashSync(req.body.password.trim(), saltRounds)
+      : null,
+    name: req.body.name ? req.body.name.trim() : null,
+    userName: req.body.username ? req.body.username.trim() : null,
+  };
+
+  //
+  if (
+    emailRegex.test(userData.email) &&
+    userData.email.split(" ").length === 1 //to ensure that no whitespace is present in between
+  ) {
+    // email is valid
+    const connection = sql.createConnection(dbConfig);
+    connection.connect();
+
+    connection.query(
+      "INSERT INTO users SET ? ;",
+      userData,
+      (err, rows, fields) => {
+        if (err) {
+          res.json({ error: err.sqlMessage });
+        } else {
+          res.json({
+            message: "you have been successfully registered.",
+          });
+        }
+      }
+    );
+    connection.end();
+  } else {
+    res.status(400).json({ error: `email '${userData.email}' is invalid.` });
+  }
+}
+
+module.exports = { testRegisterUser, registerUser, loginUser };
