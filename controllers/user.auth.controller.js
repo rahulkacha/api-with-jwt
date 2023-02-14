@@ -61,7 +61,7 @@ function loginUser(req, res) {
       if (err) {
         res.json({ error: err });
       } else {
-        utils.testSendJWT(rows, userObj.password, res);
+        utils.sendJWT(rows, userObj.password, res);
       }
     }
   );
