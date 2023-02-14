@@ -22,16 +22,4 @@ router
 
   .post(controllers.loginUser);
 
-// TEST ROUTES
-
-router
-  .route("/testRegister")
-
-  .post(controllers.testRegisterUser);
-
-router
-  .route("/testLogin")
-
-  .post(controllers.testLoginUser);
-
 module.exports = router;
