@@ -1,6 +1,7 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { messages } = require("../helpers/messages");
 
 function sendJWT(rows, passwordStr, res) {
   if (passwordStr !== null) {
@@ -16,13 +17,9 @@ function sendJWT(rows, passwordStr, res) {
           expiresIn: process.env.EXPIRES_IN,
         });
         res.json({ accessToken: accessToken });
-      } else {
-        res.json({ error: "password does not match" });
-      }
+      } else res.json({ error: messages["UNAUTHORIZED"] });
     });
-  } else {
-    res.json({ error: "password can't be null" });
-  }
+  } else res.json({ error: messages["MISSING_VAL"]});
 }
 
 module.exports = { sendJWT };
