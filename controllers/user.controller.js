@@ -7,10 +7,13 @@ function createUser(req, res) {
   if (req.body.username && req.body.phone && req.body.password) {
     const newUser = new User({
       username: req.body.username ? req.body.username.trim() : null,
-      phone: req.body.phone.trim(),
-      passwordHash: bcrypt.hashSync(req.body.password.trim(), saltRounds),
-      password: req.body.password.trim(),
-      role: 1,
+      phone: req.body.phone ? req.body.phone.trim() : null,
+      passwordHash: req.body.password
+        ? bcrypt.hashSync(req.body.password.trim(), saltRounds)
+        : null,
+      password: req.body.password ? req.body.password.trim() : null,
+      ///////////////////////
+      role: req.body.role ? req.body.role : 1,
     });
 
     User.create(newUser, (err, result) => {

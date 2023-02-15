@@ -5,10 +5,14 @@ const messages = {
   MISSING_VAL: "value(s) are missing; check the request body.",
   NOT_REGISTERED: " is not registered.",
   REG_SUCCESSFUL: "you have been successfully registered.",
-  UNAUTHORIZED: "you are unauthorized.",
+  UNAUTHORIZED: "you are unauthorized to perform this operation. check your credentials.",
   EXPIRED: "token is expired.",
   NOT_FOUND: "record not found with id = ",
   SUCCESSFUL: "operation successful.",
+  // JWT verfication errors
+  TokenExpiredError: "your token is expired.",
+  JsonWebTokenError: "your JWT signature is invalid.",
+  SyntaxError: "Syntax error found in your token; i.e. the JWT is tampered.",
 };
 
 module.exports = { messages };

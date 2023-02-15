@@ -21,10 +21,23 @@ router.route("/create").post(controllers.createUser); //su admin
 
 router.route("/getAll").get(controllers.findAll); //admin su admin
 
-router.route("/find/:id").get(controllers.findOne);//su admin
+router.route("/find/:id").get(controllers.findOne); //su admin
 
-router.route("/delete/:id").delete(controllers.deleteOne); //su admin
+router
+  .route("/delete/:id")
+  .delete(
+    middlewares.authenticateToken,
+    middlewares.isSuperAdmin,
+    controllers.deleteOne
+  );
 
-
-
+// TEST ROUTE
+router.get(
+  "/adminOnly",
+  middlewares.authenticateToken,
+  middlewares.isSubAdmin,
+  (req, res) => {
+    res.json({ message: "for sub admin only." });
+  }
+);
 module.exports = router;

@@ -26,7 +26,7 @@ User.create = (newUser, result) => {
 };
 
 User.selectAll = (result) => {
-  connection.query("SELECT * FROM users;", (err, users) => {
+  connection.query("SELECT * FROM users WHERE is_delete = 0;", (err, users) => {
     if (err) {
       return result(err, null);
     } else {
@@ -55,7 +55,12 @@ User.findByIdAndDelete = (id, result) => {
     (err, rows) => {
       if (err) return result(err, null);
 
-      return result({ message: messages["SUCCESSFUL"] });
+      if (rows.affectedRows !== 0) {
+        // checks whether a record with corresponding user_id exists or not
+        return result({ message: messages["SUCCESSFUL"] });
+      }
+      
+      return result({ error: messages["NOT_FOUND"] + id });
     }
   );
 };
