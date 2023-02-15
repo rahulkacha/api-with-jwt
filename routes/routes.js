@@ -1,5 +1,6 @@
 const express = require("express");
-const controllers = require("../controllers/user.auth.controller");
+const authControllers = require("../controllers/user.auth.controller");
+const controllers = require("../controllers/user.controller");
 const middlewares = require("../middlewares/user.auth.middleware");
 const router = express.Router();
 
@@ -12,14 +13,18 @@ router
     });
   });
 
-router
-  .route("/register")
+router.route("/register").post(authControllers.registerUser);
 
-  .post(controllers.registerUser);
+router.route("/login").post(authControllers.loginUser);
 
-router
-  .route("/login")
+router.route("/create").post(controllers.createUser); //su admin
 
-  .post(controllers.loginUser);
+router.route("/getAll").get(controllers.findAll); //admin su admin
+
+router.route("/find/:id").get(controllers.findOne);//su admin
+
+router.route("/delete/:id").delete(controllers.deleteOne); //su admin
+
+
 
 module.exports = router;
