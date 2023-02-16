@@ -12,21 +12,23 @@ const User = function (user) {
   this.user_password = user.passwordHash;
   this.user_password_f_sweet = user.password;
   this.user_role = user.role;
+  this.email = user.email;
 };
 
 User.create = (newUser, result) => {
   connection.query("INSERT INTO users SET ? ;", newUser, (err, rows) => {
     if (err) {
-      console.log(err);
-      result(err, null); // returns err and null
-      return;
+      return result({ error: messages[err["code"]] }); // returns err and null
     }
     result(null, { message: messages["REG_SUCCESSFUL"], credentials: newUser });
   });
 };
 
-User.selectAll = (result) => {
-  connection.query("SELECT * FROM users WHERE is_delete = 0;", (err, users) => {
+User.selectAll = (role, result) => {
+  const queryStr = role
+    ? `SELECT * FROM users WHERE is_delete = 0 AND user_role = ${role}`
+    : `SELECT * FROM users WHERE is_delete = 0`;
+  connection.query(queryStr, (err, users) => {
     if (err) {
       return result(err, null);
     } else {
@@ -48,6 +50,23 @@ User.findById = (id, result) => {
   );
 };
 
+User.findByIdAndUpdate = (id, userObj, result) => {
+  connection.query(
+    "UPDATE users SET ? WHERE user_id = ?;",
+    [userObj, id],
+    (err, rows) => {
+      if (err) return result(err, null);
+
+      if (rows.affectedRows !== 0) {
+        // checks whether a record with corresponding user_id exists or not
+        return result({ message: messages["SUCCESSFUL"] });
+      }
+
+      return result({ error: messages["NOT_FOUND"] + id });
+    }
+  );
+};
+
 User.findByIdAndDelete = (id, result) => {
   connection.query(
     "UPDATE users SET is_delete = Abs(is_delete -1) WHERE user_id = ?;",
@@ -59,7 +78,7 @@ User.findByIdAndDelete = (id, result) => {
         // checks whether a record with corresponding user_id exists or not
         return result({ message: messages["SUCCESSFUL"] });
       }
-      
+
       return result({ error: messages["NOT_FOUND"] + id });
     }
   );

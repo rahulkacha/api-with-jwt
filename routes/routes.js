@@ -17,11 +17,31 @@ router.route("/register").post(authControllers.registerUser);
 
 router.route("/login").post(authControllers.loginUser);
 
-router.route("/create").post(controllers.createUser); //su admin
+router
+  .route("/create")
+  .post(
+    middlewares.authenticateToken,
+    middlewares.isSuperAdmin,
+    controllers.createUser
+  ); //su admin
 
-router.route("/getAll").get(controllers.findAll); //admin su admin
+router
+  .route("/getAll")
+  .get(
+    middlewares.authenticateToken,
+    middlewares.isSuperAdmin,
+    controllers.findAll
+  ); //admin su admin
 
 router.route("/find/:id").get(controllers.findOne); //su admin
+
+router
+  .route("/update/:id")
+  .patch(
+    middlewares.authenticateToken,
+    middlewares.isSuperAdmin,
+    controllers.updateOne
+  ); //su admin
 
 router
   .route("/delete/:id")
