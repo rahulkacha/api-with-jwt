@@ -2,9 +2,9 @@ const express = require("express");
 const authControllers = require("../controllers/user.auth.controller");
 const controllers = require("../controllers/user.controller");
 const middlewares = require("../middlewares/user.auth.middleware");
-const router = express.Router();
+const userRouter = express.Router();
 
-router
+userRouter
   .route("/")
 
   .get(middlewares.authenticateToken, (req, res) => {
@@ -13,11 +13,11 @@ router
     });
   });
 
-router.route("/register").post(authControllers.registerUser);
+  userRouter.route("/register").post(authControllers.registerUser);
 
-router.route("/login").post(authControllers.loginUser);
+  userRouter.route("/login").post(authControllers.loginUser);
 
-router
+  userRouter
   .route("/create")
   .post(
     middlewares.authenticateToken,
@@ -25,7 +25,7 @@ router
     controllers.createUser
   ); //su admin
 
-router
+  userRouter
   .route("/getAll")
   .get(
     middlewares.authenticateToken,
@@ -33,9 +33,9 @@ router
     controllers.findAll
   ); //admin su admin
 
-router.route("/find/:id").get(controllers.findOne); //su admin
+  userRouter.route("/find/:id").get(controllers.findOne); //su admin
 
-router
+  userRouter
   .route("/update/:id")
   .patch(
     middlewares.authenticateToken,
@@ -43,7 +43,7 @@ router
     controllers.updateOne
   ); //su admin
 
-router
+  userRouter
   .route("/delete/:id")
   .delete(
     middlewares.authenticateToken,
@@ -52,7 +52,7 @@ router
   );
 
 // TEST ROUTE
-router.get(
+userRouter.get(
   "/adminOnly",
   middlewares.authenticateToken,
   middlewares.isSubAdmin,
@@ -60,4 +60,4 @@ router.get(
     res.json({ message: "for sub admin only." });
   }
 );
-module.exports = router;
+module.exports = userRouter;
