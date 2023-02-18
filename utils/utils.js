@@ -30,6 +30,7 @@ function sendJWT(rows, passwordStr, res) {
         const user = {
           username: rows[0].user_name,
           user_role: rows[0].user_role,
+          user_id: rows[0].user_id,
         };
 
         const accessToken = jwt.sign(user, process.env.PRIVATE_KEY, {

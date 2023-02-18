@@ -17,7 +17,7 @@ transactionRouter
   .post(
     middlewares.authenticateToken,
     middlewares.isSuperAdmin,
-    controllers.generate
+    controllers.generateTxn
   );
 
 transactionRouter
@@ -26,15 +26,6 @@ transactionRouter
     middlewares.authenticateToken,
     middlewares.isSuperAdmin,
     controllers.findOne
-  );
-
-// TEST ROUTE
-transactionRouter
-  .route("/testTxn")
-  .post(
-    middlewares.authenticateToken,
-    middlewares.isSuperAdmin,
-    controllers.testGenearate
   );
 
 module.exports = transactionRouter;

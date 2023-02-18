@@ -1,5 +1,4 @@
 require("dotenv").config();
-const sql = require("mysql2");
 const bcrypt = require("bcrypt");
 const utils = require("../utils/utils");
 const { messages } = require("../helpers/messages");
@@ -45,33 +44,6 @@ function registerUser(req, res) {
       .json({ error: `'${userData.email}' ${messages["INVALID"]}` });
   }
 }
-
-// function loginUser(req, res) {
-//   // check if the body contains email or password or both
-//   userObj = {
-//     userName: req.body.username ? req.body.username.trim() : null,
-//     email: req.body.username ? req.body.username.trim().toLowerCase() : null,
-//     password: req.body.password ? req.body.password.trim() : null,
-//   };
-
-//   // fetch the row with either matching username or password
-//   if (userObj.userName && userObj.password) {
-//     connection.query(
-//       `SELECT * FROM users WHERE email = ? OR userName = ?;`,
-//       [userObj.email, userObj.userName],
-//       (err, rows, fields) => {
-//         if (err) return res.json({ error: err });
-
-//         if (rows.length !== 0)
-//           return utils.sendJWT(rows, userObj.password, res);
-
-//         return res
-//           .status(403)
-//           .json(req.body.username + messages["NOT_REGISTERED"]);
-//       }
-//     );
-//   } else return res.json({ error: messages["MISSING_VAL"] });
-// }
 
 function loginUser(req, res) {
   // check if the body contains email or password or both
