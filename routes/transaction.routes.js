@@ -28,4 +28,12 @@ transactionRouter
     controllers.findOne
   );
 
+transactionRouter
+  .route("/getBalance/")
+  .get(
+    middlewares.authenticateToken,
+    middlewares.isSuperAdmin,
+    controllers.getBalance
+  );
+
 module.exports = transactionRouter;

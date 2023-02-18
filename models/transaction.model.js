@@ -1,5 +1,4 @@
 require("dotenv").config();
-const sql = require("mysql2");
 const connection = require("../configs/database");
 
 const { messages } = require("../helpers/messages");
@@ -52,7 +51,6 @@ Transaction.findById = (id, result) => {
   });
 };
 
-// TEST MODEL
 Transaction.generate = (newTxn, result) => {
   const newTxn2 = {
     from_user_id: newTxn.to_user_id,
@@ -79,6 +77,42 @@ Transaction.generate = (newTxn, result) => {
         message: messages["SUCCESSFUL"],
         transactions: [newTxn, newTxn2],
       });
+    });
+  });
+};
+
+const testQuery = `select  u.user_name,t.*
+from transactions t
+join users u on user_id where t.from_user_id = ? order by t.created_at desc limit 1;`;
+
+Transaction.getBalanceById = (id, result) => {
+  const queryStr = `select * from transactions where from_user_id = ? order by created_at desc limit 1;`;
+
+  connection.query(queryStr, id, (err, rows) => {
+    if (err) return result(err, null);
+    if (!rows.length) return result({ error: messages["NOT_FOUND"] + id });
+
+    return result({
+      user_id: id,
+      user_name: rows[0].user_name,
+      balance: rows[0].balance,
+      user_role: rows[0].user_role,
+    });
+  });
+};
+
+Transaction.getTotalBalance = (result) => {
+  const queryStr = `select * from transactions where from_user_id = ? order by created_at desc limit 1;`;
+
+  connection.query(queryStr, (err, rows) => {
+    if (err) return result(err, null);
+    if (!rows.length) return result({ error: messages["NOT_FOUND"] + id });
+
+    return result({
+      user_id: id,
+      user_name: rows[0].user_name,
+      balance: rows[0].balance,
+      user_role: rows[0].user_role,
     });
   });
 };
