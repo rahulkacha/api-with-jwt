@@ -1,5 +1,4 @@
 const express = require("express");
-const authControllers = require("../controllers/user.auth.controller");
 const controllers = require("../controllers/transaction.controller");
 const middlewares = require("../middlewares/user.auth.middleware");
 const transactionRouter = express.Router();
@@ -21,8 +20,21 @@ transactionRouter
     controllers.generate
   );
 
-transactionRouter.route("/find/:id").get(controllers.findOne); //su admin
+transactionRouter
+  .route("/find/:id")
+  .get(
+    middlewares.authenticateToken,
+    middlewares.isSuperAdmin,
+    controllers.findOne
+  );
 
-
+// TEST ROUTE
+transactionRouter
+  .route("/testTxn")
+  .post(
+    middlewares.authenticateToken,
+    middlewares.isSuperAdmin,
+    controllers.testGenearate
+  );
 
 module.exports = transactionRouter;
