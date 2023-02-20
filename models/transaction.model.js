@@ -1,6 +1,7 @@
 require("dotenv").config();
+const moment = require("moment");
 const connection = require("../configs/database");
-
+const utils = require("../utils/utils");
 const { messages } = require("../helpers/messages");
 
 // constructor
@@ -64,56 +65,86 @@ Transaction.generate = (newTxn, result) => {
     balance: Number(newTxn.transaction_amount),
   };
 
-  const queryStr = "INSERT INTO transactions SET ?;";
-  connection.query(queryStr, newTxn, (err, rows) => {
-    if (err) {
-      return result({ error: messages[err["code"]] }); // returns err and null
-    }
-    connection.query(queryStr, newTxn2, (err, rows) => {
+  //check if a previous transaction exists with the corresponding FROM_USER_ID
+  connection.query(
+    `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
+    newTxn.from_user_id,
+    (err, rows) => {
       if (err) {
-        return result({ error: messages[err["code"]] }); // returns err and null
+        return result(err);
       }
-      result(null, {
-        message: messages["SUCCESSFUL"],
-        transactions: [newTxn, newTxn2],
-      });
-    });
-  });
+      if (rows.length !== 0) {
+        console.log("step 1");
+        newTxn.balance = rows[0].balance + newTxn.balance; //deducting balance from from_user_id
+        return utils.insertTxns(newTxn, newTxn2, result);
+      }
+    }
+  );
+
+  //check if a previous transaction exists with the corresponding TO_USER_ID
+  connection.query(
+    `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
+    newTxn.to_user_id,
+    (err, rows) => {
+      if (err) {
+        return result({ error: messages[err["code"]] });
+      }
+      if (rows.length !== 0) {
+        console.log("step 2");
+        newTxn2.balance = rows[0].balance + newTxn2.balance; // adding balance to to_user_id
+        return utils.insertTxns(newTxn, newTxn2, result);
+      }
+    }
+  );
+  console.log("step 3");
+  return utils.insertTxns(newTxn, newTxn2, result);
 };
 
-const testQuery = `select  u.user_name,t.*
-from transactions t
-join users u on user_id where t.from_user_id = ? order by t.created_at desc limit 1;`;
-
 Transaction.getBalanceById = (id, result) => {
-  const queryStr = `select * from transactions where from_user_id = ? order by created_at desc limit 1;`;
-
+  const queryStr = `select * from (select users.user_name as from_user_name,
+  t.from_user_id as user_id,
+  t.balance,
+  users.user_role,
+  t.created_at
+  from transactions as t 
+  join users on t.from_user_id = users.user_id
+  order by t.created_at desc) as temp
+  where user_id = ? limit 1;`;
   connection.query(queryStr, id, (err, rows) => {
     if (err) return result(err, null);
     if (!rows.length) return result({ error: messages["NOT_FOUND"] + id });
 
     return result({
-      user_id: id,
-      user_name: rows[0].user_name,
+      user_id: rows[0].user_id,
+      user_name: rows[0].from_user_name,
       balance: rows[0].balance,
       user_role: rows[0].user_role,
+      date: moment(rows[0].created_at).format("DD/MM/YYYY"),
     });
   });
 };
 
 Transaction.getTotalBalance = (result) => {
-  const queryStr = `select * from transactions where from_user_id = ? order by created_at desc limit 1;`;
+  const queryStr = `select * from
+  (SELECT user_role,
+  user_id,
+  user_name,
+  t.created_at,
+  balance FROM transactions as t
+  inner join 
+  users as u where u.user_id = t.from_user_id
+  GROUP BY from_user_id) as temp
+  where user_role = 2;`;
 
   connection.query(queryStr, (err, rows) => {
     if (err) return result(err, null);
-    if (!rows.length) return result({ error: messages["NOT_FOUND"] + id });
-
-    return result({
-      user_id: id,
-      user_name: rows[0].user_name,
-      balance: rows[0].balance,
-      user_role: rows[0].user_role,
+    if (!rows.length) return result({ error: messages["NOT_FOUND"] });
+    let totalBalance = 0;
+    rows.forEach((element) => {
+      totalBalance += element.balance;
     });
+
+    return result(totalBalance);
   });
 };
 

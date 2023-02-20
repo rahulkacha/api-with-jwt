@@ -35,12 +35,12 @@ function generateTxn(req, res) {
       transaction_category: req.body.transaction_category,
       transaction_payment_mode: req.body.transaction_payment_mode,
       added_by: req.user.user_id,
-      balance: Number(req.body.transaction_amount),
+      balance: Number(req.body.transaction_amount) * -1,
     });
-
     Transaction.generate(newTxn, (err, result) => {
-      if (err) return res.json(err);
-
+      if (err) {
+        return res.json(err);
+      }
       return res.json(result);
     });
   } else {
@@ -56,6 +56,9 @@ function getBalance(req, res) {
     });
   } else {
     // send all the sub-admins' balance total
+    Transaction.getTotalBalance((result) => {
+      res.json(result);
+    });
   }
 }
 

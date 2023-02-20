@@ -1,6 +1,7 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const connection = require("../configs/database");
 const { messages } = require("../helpers/messages");
 
 function sendJWT(rows, passwordStr, res) {
@@ -24,4 +25,20 @@ function sendJWT(rows, passwordStr, res) {
   } else res.json({ error: messages["MISSING_VAL"] });
 }
 
-module.exports = { sendJWT };
+function insertTxns(newTxn, newTxn2, result ) {
+  connection.query(
+    `INSERT INTO transactions SET ?; INSERT INTO transactions SET ?;`,
+    [newTxn, newTxn2],
+    (err, rows) => {
+      if (err) {
+        return result({ error: messages[err["code"]] });
+      }
+
+      return result(null, {
+        message: messages["SUCCESSFUL"],
+        transactions: [newTxn, newTxn2],
+      });
+    }
+  );
+}
+module.exports = { sendJWT, insertTxns };

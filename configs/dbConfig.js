@@ -8,6 +8,7 @@ const dbConfig = {
   // database: "apidb",
   database: "iaccounting",
   port: 3308, //your port
+  multipleStatements: true,
 };
 
 module.exports = { dbConfig };
