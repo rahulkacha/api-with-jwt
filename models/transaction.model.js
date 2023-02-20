@@ -53,44 +53,59 @@ Transaction.findById = (id, result) => {
 };
 Transaction.generate = (newTxn, result) => {
   //check whether the username exists in the users table or not
-  const newTxn2 = {
-    from_user_id: newTxn.to_user_id,
-    to_user_id: newTxn.from_user_id,
-    transaction_amount: newTxn.transaction_amount,
-    transaction_other_details: newTxn.transaction_other_details,
-    transaction_status: newTxn.transaction_status,
-    transaction_category: newTxn.transaction_category,
-    transaction_payment_mode: newTxn.transaction_payment_mode,
-    added_by: newTxn.added_by,
-    balance: Number(newTxn.transaction_amount),
-  };
+  connection.query(
+    `select user_name from users where user_role = 2 and user_id = ?;
+     select user_name from users where user_role = 2 and user_id = ?;`,
+    [newTxn.from_user_id, newTxn.to_user_id],
+    (err, rows) => {
+      if (err) return result(err, null);
+      if (rows[0].length == 0 || rows[1].length == 0) {
+        //one of the user doesnot exist
+        return result({
+          error: `${messages["NOT_FOUND"]}${newTxn.from_user_id} or ${newTxn.to_user_id}`,
+        });
+      } else {
+        const newTxn2 = {
+          from_user_id: newTxn.to_user_id,
+          to_user_id: newTxn.from_user_id,
+          transaction_amount: newTxn.transaction_amount,
+          transaction_other_details: newTxn.transaction_other_details,
+          transaction_status: newTxn.transaction_status,
+          transaction_category: newTxn.transaction_category,
+          transaction_payment_mode: newTxn.transaction_payment_mode,
+          added_by: newTxn.added_by,
+          balance: Number(newTxn.transaction_amount),
+        };
 
-  connection
-    .promise()
-    .query(
-      `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
-      newTxn.from_user_id
-    )
-    .then(([rows, fields]) => {
-      if (rows.length == 1) {
-        newTxn.balance = rows[0].balance + newTxn.balance; //deducting balance from from_user_id
+        connection
+          .promise()
+          .query(
+            `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
+            newTxn.from_user_id
+          )
+          .then(([rows, fields]) => {
+            if (rows.length == 1) {
+              newTxn.balance = rows[0].balance + newTxn.balance; //deducting balance from from_user_id
+            }
+
+            connection
+              .promise()
+              .query(
+                `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
+                newTxn.to_user_id
+              )
+              .then(([rows, fields]) => {
+                if (rows.length == 1) {
+                  newTxn2.balance = rows[0].balance + newTxn2.balance; //deducting balance from from_user_id
+                }
+                return utils.insertTxns(newTxn, newTxn2, result);
+              })
+              .catch(console.log);
+          })
+          .catch(console.log);
       }
-
-      connection
-        .promise()
-        .query(
-          `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
-          newTxn.to_user_id
-        )
-        .then(([rows, fields]) => {
-          if (rows.length == 1) {
-            newTxn2.balance = rows[0].balance + newTxn2.balance; //deducting balance from from_user_id
-          }
-          return utils.insertTxns(newTxn, newTxn2, result);
-        })
-        .catch(console.log);
-    })
-    .catch(console.log);
+    }
+  );
 };
 
 Transaction.getBalanceById = (id, result) => {
