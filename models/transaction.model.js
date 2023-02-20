@@ -51,8 +51,8 @@ Transaction.findById = (id, result) => {
     return result(rows[0]);
   });
 };
-
 Transaction.generate = (newTxn, result) => {
+  //check whether the username exists in the users table or not
   const newTxn2 = {
     from_user_id: newTxn.to_user_id,
     to_user_id: newTxn.from_user_id,
@@ -65,39 +65,32 @@ Transaction.generate = (newTxn, result) => {
     balance: Number(newTxn.transaction_amount),
   };
 
-  //check if a previous transaction exists with the corresponding FROM_USER_ID
-  connection.query(
-    `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
-    newTxn.from_user_id,
-    (err, rows) => {
-      if (err) {
-        return result(err);
-      }
-      if (rows.length !== 0) {
-        console.log("step 1");
+  connection
+    .promise()
+    .query(
+      `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
+      newTxn.from_user_id
+    )
+    .then(([rows, fields]) => {
+      if (rows.length == 1) {
         newTxn.balance = rows[0].balance + newTxn.balance; //deducting balance from from_user_id
-        return utils.insertTxns(newTxn, newTxn2, result);
       }
-    }
-  );
 
-  //check if a previous transaction exists with the corresponding TO_USER_ID
-  connection.query(
-    `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
-    newTxn.to_user_id,
-    (err, rows) => {
-      if (err) {
-        return result({ error: messages[err["code"]] });
-      }
-      if (rows.length !== 0) {
-        console.log("step 2");
-        newTxn2.balance = rows[0].balance + newTxn2.balance; // adding balance to to_user_id
-        return utils.insertTxns(newTxn, newTxn2, result);
-      }
-    }
-  );
-  console.log("step 3");
-  return utils.insertTxns(newTxn, newTxn2, result);
+      connection
+        .promise()
+        .query(
+          `select balance from transactions where from_user_id = ? order by created_at desc limit 1;`,
+          newTxn.to_user_id
+        )
+        .then(([rows, fields]) => {
+          if (rows.length == 1) {
+            newTxn2.balance = rows[0].balance + newTxn2.balance; //deducting balance from from_user_id
+          }
+          return utils.insertTxns(newTxn, newTxn2, result);
+        })
+        .catch(console.log);
+    })
+    .catch(console.log);
 };
 
 Transaction.getBalanceById = (id, result) => {
