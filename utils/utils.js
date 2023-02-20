@@ -25,7 +25,7 @@ function sendJWT(rows, passwordStr, res) {
   } else res.json({ error: messages["MISSING_VAL"] });
 }
 
-function insertTxns(newTxn, newTxn2, result ) {
+function insertTxns(newTxn, newTxn2, result) {
   connection.query(
     `INSERT INTO transactions SET ?; INSERT INTO transactions SET ?;`,
     [newTxn, newTxn2],
@@ -41,4 +41,5 @@ function insertTxns(newTxn, newTxn2, result ) {
     }
   );
 }
+
 module.exports = { sendJWT, insertTxns };
