@@ -135,10 +135,50 @@ Transaction.getBalanceById = (id, result) => {
 
 Transaction.getTotalBalance = (result) => {
   //get the users where is_delete = 0 and user_role = 2
+  let queries = ``;
   connection.query(
     "select user_id from users where user_role = 2 and is_delete = 0;",
     (err, users) => {
       if (err) return result(err, null);
+      if (users) {
+        users.forEach((x) => {
+          queries += `
+           SELECT 
+           users.user_name,
+           t.balance
+           FROM transactions 
+           AS t INNER JOIN
+           users ON
+           users.user_id = ${x.user_id}
+           WHERE t.from_user_id = ${x.user_id}
+           ORDER BY t.transaction_id
+           DESC LIMIT 1;`;
+        });
+        connection.query(queries, (err, balances) => {
+          if (err) return result(err, null);
+          if (balances) {
+            let objs = [];
+            let totalBalance = 0;
+            let credit = 0;
+            let debit = 0;
+            balances.forEach((x) => {
+              objs.push(x[0]);
+              totalBalance += x[0].balance;
+              if (Math.sign(x[0].balance) === 1) {
+                credit += x[0].balance;
+              } else {
+                debit += x[0].balance;
+              }
+            });
+            return result({
+              credit: credit,
+              debit: debit,
+              totalBalance: totalBalance,
+              balances: objs,
+            });
+          }
+        });
+      }
     }
   );
 };
