@@ -51,11 +51,12 @@ Transaction.findById = (id, result) => {
     return result(rows[0]);
   });
 };
+
 Transaction.generate = (newTxn, result) => {
   //check whether the username exists in the users table or not
   connection.query(
-    `select user_name from users where user_role = 2 and user_id = ?;
-     select user_name from users where user_role = 2 and user_id = ?;`,
+    `select user_name from users where user_id = ?;
+     select user_name from users where user_id = ?;`,
     [newTxn.from_user_id, newTxn.to_user_id],
     (err, rows) => {
       if (err) return result(err, null);
@@ -133,27 +134,13 @@ Transaction.getBalanceById = (id, result) => {
 };
 
 Transaction.getTotalBalance = (result) => {
-  const queryStr = `select * from
-  (SELECT user_role,
-  user_id,
-  user_name,
-  t.created_at,
-  balance FROM transactions as t
-  inner join 
-  users as u where u.user_id = t.from_user_id
-  GROUP BY from_user_id) as temp
-  where user_role = 2;`;
-
-  connection.query(queryStr, (err, rows) => {
-    if (err) return result(err, null);
-    if (!rows.length) return result({ error: messages["NOT_FOUND"] });
-    let totalBalance = 0;
-    rows.forEach((element) => {
-      totalBalance += element.balance;
-    });
-
-    return result(totalBalance);
-  });
+  //get the users where is_delete = 0 and user_role = 2
+  connection.query(
+    "select user_id from users where user_role = 2 and is_delete = 0;",
+    (err, users) => {
+      if (err) return result(err, null);
+    }
+  );
 };
 
 module.exports = { Transaction };
