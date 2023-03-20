@@ -52,11 +52,11 @@ function loginUser(req, res) {
     password: req.body.password ? req.body.password.trim() : null,
   };
 
-  // fetch the row with either matching username or password
+  // fetch the row with either matching username or email
   if (userObj.user_name && userObj.password) {
     connection.query(
-      `SELECT * FROM users WHERE user_name = ?;`,
-      userObj.user_name,
+      `SELECT * FROM users WHERE user_name = ? or email = ?;`,
+      [userObj.user_name, userObj.user_name],
       (err, rows, fields) => {
         if (err) return res.json({ error: err });
 
