@@ -8,8 +8,9 @@ function authenticateToken(req, res, next) {
     token = authHeader.split(" ")[1];
     jwt.verify(token, process.env.PRIVATE_KEY, (err, user) => {
       if (err) {
+        console.log(err);
         return res
-          .status(403)
+          .status(401)
           .json({ error: messages[String(err).split(":")[0]] });
       } else {
         req.user = user;
@@ -32,11 +33,20 @@ function isSubAdmin(req, res, next) {
 
 function isSuperAdmin(req, res, next) {
   // predefined condition in database (role = 1 ==> su Admin)
-  if (req.user.user_role) {
+  if (req.user.user_role === 1) {
     next();
   } else {
     return res.status(401).json({ error: messages["UNAUTHORIZED"] });
   }
 }
 
-module.exports = { authenticateToken, isSubAdmin, isSuperAdmin };
+function isUser(req, res, next) {
+  // predefined condition in database (role = 1 ==> su Admin)
+  if (req.user.user_role === 3) {
+    next();
+  } else {
+    return res.status(401).json({ error: messages["UNAUTHORIZED"] });
+  }
+}
+
+module.exports = { authenticateToken, isSubAdmin, isSuperAdmin, isUser };

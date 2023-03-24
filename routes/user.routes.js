@@ -13,11 +13,9 @@ userRouter
     });
   });
 
-  userRouter.route("/register").post(authControllers.registerUser);
+userRouter.route("/login").get(authControllers.loginUser);
 
-  userRouter.route("/login").post(authControllers.loginUser);
-
-  userRouter
+userRouter
   .route("/create")
   .post(
     middlewares.authenticateToken,
@@ -25,17 +23,17 @@ userRouter
     controllers.createUser
   ); //su admin
 
-  userRouter
+userRouter
   .route("/getAll")
   .get(
     middlewares.authenticateToken,
     middlewares.isSuperAdmin,
     controllers.findAll
-  ); //admin su admin
+  ); //su admin
 
-  userRouter.route("/find/:id").get(controllers.findOne); //su admin
+userRouter.route("/find/:id").get(controllers.findOne); //su admin
 
-  userRouter
+userRouter
   .route("/update/:id")
   .patch(
     middlewares.authenticateToken,
@@ -43,7 +41,7 @@ userRouter
     controllers.updateOne
   ); //su admin
 
-  userRouter
+userRouter
   .route("/delete/:id")
   .delete(
     middlewares.authenticateToken,
@@ -53,11 +51,11 @@ userRouter
 
 // TEST ROUTE
 userRouter.get(
-  "/adminOnly",
+  "/userOnly",
   middlewares.authenticateToken,
-  middlewares.isSubAdmin,
+  middlewares.isUser,
   (req, res) => {
-    res.json({ message: "for sub admin only." });
+    res.json({ message: "for USER only" });
   }
 );
 module.exports = userRouter;

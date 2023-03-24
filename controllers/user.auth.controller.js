@@ -8,43 +8,6 @@ const connection = require("../configs/database");
 const saltRounds = 10;
 const emailRegex = /\S+@\S+\.\S+/;
 
-function registerUser(req, res) {
-  const userData = {
-    email: req.body.email ? req.body.email.toLowerCase().trim() : null,
-    password: req.body.password
-      ? bcrypt.hashSync(req.body.password.trim(), saltRounds)
-      : null,
-    name: req.body.name ? req.body.name.trim() : null,
-    userName: req.body.username ? req.body.username.trim() : null,
-  };
-
-  //
-  if (
-    emailRegex.test(userData.email) &&
-    userData.email.split(" ").length === 1 //to ensure that no whitespace is present in between
-  ) {
-    // email is valid
-    connection.query(
-      "INSERT INTO users SET ? ;",
-      userData,
-      (err, rows, fields) => {
-        if (err)
-          return res.json({
-            error: messages[err.code],
-          });
-
-        return res.json({
-          message: messages["REG_SUCCESSFUL"],
-        });
-      }
-    );
-  } else {
-    return res
-      .status(400)
-      .json({ error: `'${userData.email}' ${messages["INVALID"]}` });
-  }
-}
-
 function loginUser(req, res) {
   // check if the body contains email or password or both
   userObj = {
@@ -64,11 +27,11 @@ function loginUser(req, res) {
           return utils.sendJWT(rows, userObj.password, res);
         } else {
           return res
-            .status(403)
-            .json(req.body.username + messages["NOT_REGISTERED"]);
+            .status(401)
+            .json({ error: req.body.username + messages["NOT_REGISTERED"] });
         }
       }
     );
   } else return res.json({ error: messages["MISSING_VAL"] });
 }
-module.exports = { registerUser, loginUser };
+module.exports = { loginUser };

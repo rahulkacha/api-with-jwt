@@ -1,6 +1,4 @@
 require("dotenv").config();
-const sql = require("mysql2");
-const bcrypt = require("bcrypt");
 const connection = require("../configs/database");
 
 const { messages } = require("../helpers/messages");
@@ -13,9 +11,12 @@ const User = function (user) {
   this.user_password_f_sweet = user.password;
   this.user_role = user.role;
   this.email = user.email;
+  this.website = user.website;
+  this.added_by = null;
 };
 
-User.create = (newUser, result) => {
+User.create = (newUser, added_by, result) => {
+  newUser.added_by = added_by; // the user_id form the JWT is being added here
   connection.query("INSERT INTO users SET ? ;", newUser, (err, rows) => {
     if (err) {
       return result({ error: messages[err["code"]] }); // returns err and null

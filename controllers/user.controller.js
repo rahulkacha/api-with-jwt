@@ -12,20 +12,22 @@ function createUser(req, res) {
     req.body.password &&
     req.body.email
   ) {
+    console.log(req.user.user_id);
     const newUser = new User({
       username: req.body.username.trim(),
       phone: req.body.phone.trim(),
       passwordHash: bcrypt.hashSync(req.body.password.trim(), saltRounds),
       password: req.body.password.trim(),
-      role: req.body.role || 1,
+      role: +req.body.role || 1, //default is 1, i.e. super Admin
       email:
         emailRegex.test(req.body.email.trim()) &&
         req.body.email.trim().split(" ").length === 1
           ? req.body.email.trim().toLowerCase()
           : null,
+      website: req.body.website ? req.body.website.trim() : null,
     });
-
-    User.create(newUser, (err, result) => {
+    // passing the user_id of admin from the decoded JWT
+    User.create(newUser, req.user.user_id, (err, result) => {
       if (err) return res.json(err);
 
       return res.json(result);

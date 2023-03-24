@@ -20,7 +20,7 @@ function sendJWT(rows, passwordStr, res) {
         });
 
         res.json({ accessToken: accessToken });
-      } else res.json({ error: messages["UNAUTHORIZED"] });
+      } else res.status(401).json({ error: messages["UNAUTHORIZED"] });
     });
   } else res.json({ error: messages["MISSING_VAL"] });
 }
