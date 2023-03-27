@@ -36,8 +36,8 @@ userRouter.route("/find/:id").get(controllers.findOne); //su admin
 userRouter
   .route("/update/:id")
   .patch(
-    middlewares.authenticateToken,
-    middlewares.isSuperAdmin,
+    // middlewares.authenticateToken,
+    // middlewares.isSuperAdmin,
     controllers.updateOne
   ); //su admin
 

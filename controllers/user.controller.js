@@ -58,7 +58,12 @@ function deleteOne(req, res) {
 
 function updateOne(req, res) {
   const updateBody = {
-    user_phone_no: req.body.phone ? req.body.phone.trim() : null,
+    user_name: req.body.user_name ? req.body.user_name.trim() : null,
+    email: req.body.email ? req.body.email.trim().toLowerCase() : null,
+    user_phone_no: req.body.user_phone_no
+      ? req.body.user_phone_no.trim()
+      : null,
+    website: req.body.website ? req.body.website.trim() : null,
   };
   User.findByIdAndUpdate(req.params.id, updateBody, (result) => {
     res.json(result);
