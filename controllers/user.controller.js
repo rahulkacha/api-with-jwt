@@ -12,7 +12,6 @@ function createUser(req, res) {
     req.body.password &&
     req.body.email
   ) {
-    console.log(req.user.user_id);
     const newUser = new User({
       username: req.body.username.trim(),
       phone: req.body.phone.trim(),
@@ -27,7 +26,8 @@ function createUser(req, res) {
       website: req.body.website ? req.body.website.trim() : null,
     });
     // passing the user_id of admin from the decoded JWT
-    User.create(newUser, req.user.user_id, (err, result) => {
+    // User.create(newUser, req.user.user_id, (err, result) => {
+    User.create(newUser, 999, (err, result) => {
       if (err) return res.json(err);
 
       return res.json(result);
@@ -38,7 +38,8 @@ function createUser(req, res) {
 }
 
 function findAll(req, res) {
-  User.selectAll(req.body.role || null, (result) => {
+  const role = req.query.role ? req.query.role : null;
+  User.selectAll(role, (result) => {
     res.json(result);
   });
 }
