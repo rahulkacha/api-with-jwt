@@ -44,8 +44,8 @@ userRouter
 userRouter
   .route("/delete/:id")
   .delete(
-    middlewares.authenticateToken,
-    middlewares.isSuperAdmin,
+    // middlewares.authenticateToken,
+    // middlewares.isSuperAdmin,
     controllers.deleteOne
   );
 
