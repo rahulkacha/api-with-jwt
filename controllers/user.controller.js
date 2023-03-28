@@ -58,10 +58,10 @@ function deleteOne(req, res) {
 
 function updateOne(req, res) {
   const updateBody = {
-    user_name: req.body.user_name ? req.body.user_name.trim() : null,
+    user_name: req.body.username ? req.body.username.trim() : null,
     email: req.body.email ? req.body.email.trim().toLowerCase() : null,
-    user_phone_no: req.body.user_phone_no
-      ? req.body.user_phone_no.trim()
+    user_phone_no: req.body.phone
+      ? req.body.phone.trim()
       : null,
     website: req.body.website ? req.body.website.trim() : null,
   };
