@@ -13,7 +13,7 @@ userRouter
     });
   });
 
-userRouter.route("/login").get(authControllers.loginUser);
+userRouter.route("/login").post(authControllers.loginUser);
 
 userRouter
   .route("/create")

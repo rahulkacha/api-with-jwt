@@ -5,9 +5,10 @@ const { messages } = require("../helpers/messages");
 const connection = require("../configs/database");
 
 function loginUser(req, res) {
+  console.log(req.body);
   // check if the body contains email or password or both
   userObj = {
-    email: req.body.email ? req.body.email.trim().toLowerCase() : null,
+    email: req.body.username ? req.body.username.trim().toLowerCase() : null,
     password: req.body.password ? req.body.password.trim() : null,
   };
 
