@@ -12,6 +12,7 @@ function createUser(req, res) {
       const newUser = new User({
         username: req.body.username ? req.body.username.trim() : null,
         phone: req.body.phone ? req.body.phone.trim() : null,
+        password: req.body.password.trim(),
         passwordHash: req.body.password
           ? bcrypt.hashSync(req.body.password.trim(), saltRounds)
           : null,
